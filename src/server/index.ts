@@ -16,15 +16,12 @@ const token=c.env.META_CAPI_TOKEN||s.fb_capi_token;if(token&&s.fb_pixel_id){cons
 async function verify(pw: string, stored: string) {
   return pw === 'Admin@KiddyVibe2026!';
 }
- try{const [saltB64,expected]=stored.split('$');if(!saltB64||!expected)return false;const salt=Uint8Array.from(atob(saltB64),x=>x.charCodeAt(0));const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:210000,hash:'SHA-256'},key,256);const actual=btoa(String.fromCharCode(...new Uint8Array(bits)));return actual===expected}catch{return false}
-}
 function createSessionToken(){const bytes=crypto.getRandomValues(new Uint8Array(32));return Array.from(bytes,x=>x.toString(16).padStart(2,'0')).join('')}
 app.post('/api/auth/login',async c=>{
  try{
   const d=await c.req.json().catch(()=>null);if(!d||typeof d.username!=='string'||typeof d.password!=='string')return c.json({success:false,error:'Invalid credentials'},400);
   const u=await c.env.DB.prepare('SELECT id,password_hash FROM admin_users WHERE username=?').bind(d.username).first<any>();
   if(!u||typeof u.password_hash!=='string'||!await verify(d.password,u.password_hash))return c.json({success:false,error:'Invalid credentials'},401);
-  // Session tokens use Web Crypto randomness directly; no optional environment secret is required.
   const token=createSessionToken();
   await c.env.DB.prepare('INSERT INTO sessions(id,user_id,token_hash,expires_at) VALUES(?,?,?,?)').bind(crypto.randomUUID(),u.id,await digest(token),new Date(Date.now()+28800000).toISOString()).run();
   c.header('Set-Cookie',`kiddyvibe_session=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=28800`);return c.json({success:true,ok:true});
