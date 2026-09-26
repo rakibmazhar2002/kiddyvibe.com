@@ -15,4 +15,4 @@ CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at);
 CREATE INDEX IF NOT EXISTS idx_orders_tracking ON orders(courier_tracking_code);
 CREATE INDEX IF NOT EXISTS idx_variants_product ON product_variants(product_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token_hash);
-INSERT OR IGNORE INTO settings(key,value) VALUES ('inside_dhaka_delivery','70'),('outside_dhaka_delivery','130'),('currency','BDT'),('store_name','FORME'),('store_phone',''),('store_email',''),('support_whatsapp',''),('estimated_delivery_inside','1–2 business days'),('estimated_delivery_outside','2–5 business days'),('fb_pixel_id',''),('domain_verification_tag','');
+INSERT OR IGNORE INTO settings(key,value) VALUES ('inside_dhaka_delivery','70'),('outside_dhaka_delivery','130'),('currency','BDT'),('store_name','KiddyVibe'),('store_phone',''),('store_email',''),('support_whatsapp',''),('estimated_delivery_inside','1–2 business days'),('estimated_delivery_outside','2–5 business days'),('fb_pixel_id',''),('domain_verification_tag','');

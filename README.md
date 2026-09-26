@@ -1,6 +1,6 @@
-# FORME — premium DTC storefront
+# KiddyVibe — premium kids apparel
 
-A React + Vite storefront and Hono Cloudflare Worker starter for a Dhaka-based premium apparel label. Includes responsive campaign storefront, product detail and COD checkout, D1 schema, server-side order validation and size stock updates, session-based admin authentication, secured admin REST endpoints, R2 upload endpoint, Meta CAPI purchase integration and Steadfast order submission.
+KiddyVibe is a premium kidswear storefront built with React, Vite and a Hono Cloudflare Worker. It includes a responsive children's apparel storefront, kids' size selection and guide, one-step COD checkout, D1-backed stock variants, session-based admin, manual order management, R2 upload endpoint, Meta CAPI purchase integration and Steadfast courier submission.
 
 ## Requirements
 Node 20+, npm, Cloudflare account and Wrangler login (`npx wrangler login`).
@@ -13,13 +13,16 @@ npm run dev
 Vite serves the storefront. To exercise the Worker API locally, build and use `npx wrangler pages dev dist` after setting up your D1/R2 bindings. In normal `npm run dev`, checkout falls back to a local confirmation flow if the API is unavailable; no order is persisted in that fallback. Do not use that fallback for live sales.
 
 ## Cloudflare deployment
-1. Create D1: `npx wrangler d1 create forme-production`; copy its generated ID into `wrangler.toml` at `database_id`.
-2. Create R2: `npx wrangler r2 bucket create forme-product-media`.
-3. Apply D1 schema: `npm run db:migrate:remote` (or `npx wrangler d1 execute forme-production --remote --file=schema.sql`).
-4. Optional preview inventory: `npx wrangler d1 execute forme-production --remote --file=seed.sql`.
+1. The existing D1 database binding is retained under its current Cloudflare resource name to avoid disconnecting the live database. Check `wrangler.toml` for its configured ID.
+2. Create the media bucket if required: `npx wrangler r2 bucket create kiddyvibe-product-media`, then add its `BUCKET` binding in `wrangler.toml`.
+3. Apply the D1 migrations, including the kidswear catalog conversion: `npm run db:migrate:remote`.
+4. Optional development inventory: `npx wrangler d1 execute forme-production --remote --file=seed.sql`.
 5. Set Worker secrets: `npx wrangler secret put META_CAPI_TOKEN`, `STEADFAST_API_KEY`, `STEADFAST_SECRET_KEY`. Public Pixel ID, configurable delivery prices and remaining store settings are managed through D1 settings.
 6. Create the first admin without a default password: `npm run admin:create -- <username> '<long-random-password>' --remote` (the password must be at least 14 characters). For a local D1 database, omit `--remote`.
 7. Build/deploy: `npm run build && npx wrangler deploy`. Attach your production domain in Cloudflare and enable HTTPS. For Pages deployment, deploy `dist` and configure the Worker as the Pages Functions entrypoint or use the Worker asset binding as configured here.
+
+## Admin login recovery
+Admin authentication verifies PBKDF2-SHA256 hashes with Web Crypto; there is intentionally no hard-coded password bypass. To reset/create the admin login safely, run `npm run admin:create -- admin '<new-long-password>' --remote`. This writes a fresh salted hash directly to D1. Never put an admin password in Worker source code.
 
 ## Configuration & security notes
 - Replace the D1 database ID placeholder before deployment; never commit credentials.
