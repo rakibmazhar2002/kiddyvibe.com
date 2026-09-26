@@ -1,4 +1,4 @@
-name = "forme-store"
+name = "kiddyvibe-com"
 main = "src/server/index.ts"
 compatibility_date = "2025-01-15"
 compatibility_flags = ["nodejs_compat"]
@@ -10,7 +10,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "forme-production"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "3c855370-eb43-4496-b3ee-b39a689b012a"
 migrations_dir = "migrations"
 
 [[r2_buckets]]
