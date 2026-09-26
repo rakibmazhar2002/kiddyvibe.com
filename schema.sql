@@ -1,0 +1,18 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT NOT NULL UNIQUE, value TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL DEFAULT (datetime('now')));
+CREATE TABLE IF NOT EXISTS products (id TEXT PRIMARY KEY, title TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, short_description TEXT NOT NULL DEFAULT '', description TEXT NOT NULL DEFAULT '', regular_price INTEGER NOT NULL, sale_price INTEGER, sku TEXT NOT NULL DEFAULT '', stock INTEGER NOT NULL DEFAULT 0, sizes_json TEXT NOT NULL DEFAULT '[]', images_json TEXT NOT NULL DEFAULT '[]', category TEXT NOT NULL DEFAULT '', is_active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')));
+CREATE TABLE IF NOT EXISTS product_variants (id TEXT PRIMARY KEY, product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE, size TEXT NOT NULL, stock INTEGER NOT NULL DEFAULT 0, sku TEXT NOT NULL DEFAULT '', is_active INTEGER NOT NULL DEFAULT 1, UNIQUE(product_id,size));
+CREATE TABLE IF NOT EXISTS orders (id TEXT PRIMARY KEY, invoice_no TEXT NOT NULL UNIQUE, customer_name TEXT NOT NULL, customer_phone TEXT NOT NULL, customer_address TEXT NOT NULL, delivery_zone TEXT NOT NULL, product_id TEXT NOT NULL REFERENCES products(id), subtotal INTEGER NOT NULL, delivery_charge INTEGER NOT NULL, total_amount INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending', courier_status TEXT NOT NULL DEFAULT 'not_sent', courier_tracking_code TEXT, courier_consignment_id TEXT, meta_event_id TEXT, ip_address TEXT, user_agent TEXT, utm_source TEXT, utm_medium TEXT, utm_campaign TEXT, utm_content TEXT, fbclid TEXT, admin_note TEXT NOT NULL DEFAULT '', courier_error TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')));
+CREATE TABLE IF NOT EXISTS order_items (id TEXT PRIMARY KEY, order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE, product_id TEXT NOT NULL REFERENCES products(id), product_title TEXT NOT NULL, sku TEXT NOT NULL, selected_size TEXT NOT NULL, quantity INTEGER NOT NULL, unit_price INTEGER NOT NULL, subtotal INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS admin_users (id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')));
+CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES admin_users(id) ON DELETE CASCADE, token_hash TEXT NOT NULL UNIQUE, expires_at TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')));
+CREATE INDEX IF NOT EXISTS idx_products_slug ON products(slug);
+CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active);
+CREATE INDEX IF NOT EXISTS idx_orders_invoice ON orders(invoice_no);
+CREATE INDEX IF NOT EXISTS idx_orders_phone ON orders(customer_phone);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at);
+CREATE INDEX IF NOT EXISTS idx_orders_tracking ON orders(courier_tracking_code);
+CREATE INDEX IF NOT EXISTS idx_variants_product ON product_variants(product_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token_hash);
+INSERT OR IGNORE INTO settings(key,value) VALUES ('inside_dhaka_delivery','70'),('outside_dhaka_delivery','130'),('currency','BDT'),('store_name','FORME'),('store_phone',''),('store_email',''),('support_whatsapp',''),('estimated_delivery_inside','1–2 business days'),('estimated_delivery_outside','2–5 business days'),('fb_pixel_id',''),('domain_verification_tag','');
